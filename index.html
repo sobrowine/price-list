@@ -4,12 +4,20 @@
   <meta charset="UTF-8">
   <title>Price List</title>
  
-<p>Free Delivery - Order by Wednesday Receive by Friday 5PM.</p>
-<p>Prices exclude taxes and are subject to change without prior notice.</p>
-
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+
+    .subtitle {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.subtitle p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+    
     body { font-family: Arial, sans-serif; padding: 40px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #ddd; padding: 10px; }
@@ -48,7 +56,10 @@ td {
 <body>
 
 <h1>Price List</h1>
-
+<div class="subtitle">
+<p>Free Delivery - Order by Wednesday receive by Friday 5PM.</p>
+<p>Prices exclude taxes and are subject to change without prior notice.</p>
+</div>
 <table id="priceTable">
   <thead></thead>
   <tbody></tbody>

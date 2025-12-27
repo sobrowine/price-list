@@ -83,82 +83,58 @@ Papa.parse(url, {
   download: true,
   header: true,
   skipEmptyLines: true,
-complete: function(results) {
-  const table = document.getElementById("priceTable");
-  const thead = table.querySelector("thead");
-  const tbody = table.querySelector("tbody");
-  const filter = document.getElementById("typeFilter");
+  complete: function(results) {
+    const table = document.getElementById("priceTable");
+    const thead = table.querySelector("thead");
+    const tbody = table.querySelector("tbody");
 
-  thead.innerHTML = "";
-  tbody.innerHTML = "";
-
-  let allData = results.data;
-
-  /* ===== HEADERS ===== */
-  const headerRow = document.createElement("tr");
-  Object.keys(allData[0]).forEach(key => {
-    const th = document.createElement("th");
-    th.textContent = key;
-
-    if (key.toLowerCase() === "description" || key.toLowerCase() === "price") {
-      th.classList.add("center");
-    }
-
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-
-  /* ===== BUILD FILTER OPTIONS ===== */
-  const types = [...new Set(allData.map(row => row.Type))].filter(Boolean);
-  types.forEach(type => {
-    const option = document.createElement("option");
-    option.value = type;
-    option.textContent = type;
-    filter.appendChild(option);
-  });
-
-  /* ===== RENDER FUNCTION ===== */
-  function renderTable(data) {
+    thead.innerHTML = "";
     tbody.innerHTML = "";
 
-    data.forEach(row => {
-      const tr = document.createElement("tr");
+    /* ===== HEADERS ===== */
+    const headerRow = document.createElement("tr");
+    Object.keys(results.data[0]).forEach(key => {
+      const th = document.createElement("th");
+      th.textContent = key;
 
-      Object.entries(row).forEach(([key, value]) => {
-        const td = document.createElement("td");
+      if (key.toLowerCase() === "description" || key.toLowerCase() === "price") {
+        th.classList.add("center");
+      }
 
-        if (key.toLowerCase() === "price") {
-          const num = parseFloat(value);
-          td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
-          td.classList.add("center");
-        } else {
-          td.textContent = value;
-
-          if (key.toLowerCase() === "description") {
-            td.classList.add("center");
-          }
-        }
-
-        tr.appendChild(td);
-      });
-
-      tbody.appendChild(tr);
+      headerRow.appendChild(th);
     });
-  }
+    thead.appendChild(headerRow);
 
-  /* ===== FILTER EVENT ===== */
-  filter.addEventListener("change", () => {
-    const value = filter.value;
-    if (value === "all") {
-      renderTable(allData);
-    } else {
-      renderTable(allData.filter(row => row.Type === value));
+    /* ===== ROWS ===== */
+   results.data.forEach(row => {
+  const tr = document.createElement("tr");
+
+  Object.entries(row).forEach(([key, value]) => {
+    const td = document.createElement("td");
+    td.textContent = value;
+
+    // Center ONLY Size (Description) and Price
+    if (
+      key.toLowerCase() === "size" || 
+      key.toLowerCase() === "price"
+    ) {
+      td.classList.add("center");
     }
+
+    // Format price as currency
+    if (key.toLowerCase() === "price") {
+      const num = parseFloat(value);
+      td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
+    }
+
+    tr.appendChild(td);
   });
 
-  /* Initial render */
-  renderTable(allData);
-}
+  tbody.appendChild(tr);
+});
+
+  }
+});
 </script>
 
 </body>

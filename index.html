@@ -58,30 +58,33 @@ Papa.parse(url, {
     thead.appendChild(headerRow);
 
     /* ===== ROWS ===== */
-    results.data.forEach(row => {
-      const tr = document.createElement("tr");
+   results.data.forEach(row => {
+  const tr = document.createElement("tr");
 
-      Object.entries(row).forEach(([key, value]) => {
-        const td = document.createElement("td");
+  Object.entries(row).forEach(([key, value]) => {
+    const td = document.createElement("td");
+    td.textContent = value;
 
-        if (key.toLowerCase() === "price") {
-          const num = parseFloat(value);
-          td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
-          td.classList.add("center");
-        } 
-        else {
-          td.textContent = value;
+    // Center ONLY Size (Description) and Price
+    if (
+      key.toLowerCase() === "description" || 
+      key.toLowerCase() === "price"
+    ) {
+      td.classList.add("center");
+    }
 
-          if (key.toLowerCase() === "description") {
-            td.classList.add("center");
-          }
-        }
+    // Format price as currency
+    if (key.toLowerCase() === "price") {
+      const num = parseFloat(value);
+      td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
+    }
 
-        tr.appendChild(td);
-      });
+    tr.appendChild(td);
+  });
 
-      tbody.appendChild(tr);
-    });
+  tbody.appendChild(tr);
+});
+
   }
 });
 </script>

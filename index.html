@@ -61,10 +61,18 @@ td {
   <p>Order by Wednesday receive by Friday 5PM.</p>
 <p>Prices exclude sales taxes and are subject to change without prior notice.</p>
 </div>
-<label for="typeFilter"><strong>Filter by type:</strong></label>
+<label for="typeFilter"><strong>Filter by type:</strong></label>cos
 <select id="typeFilter">
   <option value="all">All</option>
 </select>
+
+<label for="searchInput"><strong>Search:</strong></label>
+<input
+  type="text"
+  id="searchInput"
+  placeholder="Search items..."
+  style="margin-left: 10px; padding: 5px; width: 200px;"
+>
   
 <table id="priceTable">
   <thead></thead>
@@ -88,6 +96,8 @@ Papa.parse(url, {
     const thead = table.querySelector("thead");
     const tbody = table.querySelector("tbody");
     const filter = document.getElementById("typeFilter");
+    const searchInput = document.getElementById("searchInput");
+
 
     let allData = results.data;
 
@@ -147,13 +157,32 @@ Papa.parse(url, {
     }
 
     /* ===== FILTER EVENT ===== */
-    filter.addEventListener("change", () => {
-      if (filter.value === "all") {
-        renderTable(allData);
-      } else {
-        renderTable(allData.filter(row => row.Type === filter.value));
-      }
-    });
+    function applyFilters() {
+  const typeValue = filter.value;
+  const searchValue = searchInput.value.toLowerCase();
+
+  let filtered = allData;
+
+  // Type filter
+  if (typeValue !== "all") {
+    filtered = filtered.filter(row => row.Type === typeValue);
+  }
+
+  // Search filter
+  if (searchValue) {
+    filtered = filtered.filter(row =>
+      Object.values(row).some(value =>
+        String(value).toLowerCase().includes(searchValue)
+      )
+    );
+  }
+
+  renderTable(filtered);
+}
+
+filter.addEventListener("change", applyFilters);
+searchInput.addEventListener("input", applyFilters);
+
 
     /* Initial render */
     renderTable(allData);

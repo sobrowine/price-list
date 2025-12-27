@@ -61,6 +61,11 @@ td {
   <p>Order by Wednesday receive by Friday 5PM.</p>
 <p>Prices exclude sales taxes and are subject to change without prior notice.</p>
 </div>
+<label for="typeFilter"><strong>Filter by type:</strong></label>
+<select id="typeFilter">
+  <option value="all">All</option>
+</select>
+  
 <table id="priceTable">
   <thead></thead>
   <tbody></tbody>
@@ -78,58 +83,82 @@ Papa.parse(url, {
   download: true,
   header: true,
   skipEmptyLines: true,
-  complete: function(results) {
-    const table = document.getElementById("priceTable");
-    const thead = table.querySelector("thead");
-    const tbody = table.querySelector("tbody");
+complete: function(results) {
+  const table = document.getElementById("priceTable");
+  const thead = table.querySelector("thead");
+  const tbody = table.querySelector("tbody");
+  const filter = document.getElementById("typeFilter");
 
-    thead.innerHTML = "";
-    tbody.innerHTML = "";
+  thead.innerHTML = "";
+  tbody.innerHTML = "";
 
-    /* ===== HEADERS ===== */
-    const headerRow = document.createElement("tr");
-    Object.keys(results.data[0]).forEach(key => {
-      const th = document.createElement("th");
-      th.textContent = key;
+  let allData = results.data;
 
-      if (key.toLowerCase() === "description" || key.toLowerCase() === "price") {
-        th.classList.add("center");
-      }
+  /* ===== HEADERS ===== */
+  const headerRow = document.createElement("tr");
+  Object.keys(allData[0]).forEach(key => {
+    const th = document.createElement("th");
+    th.textContent = key;
 
-      headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-
-    /* ===== ROWS ===== */
-   results.data.forEach(row => {
-  const tr = document.createElement("tr");
-
-  Object.entries(row).forEach(([key, value]) => {
-    const td = document.createElement("td");
-    td.textContent = value;
-
-    // Center ONLY Size (Description) and Price
-    if (
-      key.toLowerCase() === "size" || 
-      key.toLowerCase() === "price"
-    ) {
-      td.classList.add("center");
+    if (key.toLowerCase() === "description" || key.toLowerCase() === "price") {
+      th.classList.add("center");
     }
 
-    // Format price as currency
-    if (key.toLowerCase() === "price") {
-      const num = parseFloat(value);
-      td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
-    }
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
 
-    tr.appendChild(td);
+  /* ===== BUILD FILTER OPTIONS ===== */
+  const types = [...new Set(allData.map(row => row.Type))].filter(Boolean);
+  types.forEach(type => {
+    const option = document.createElement("option");
+    option.value = type;
+    option.textContent = type;
+    filter.appendChild(option);
   });
 
-  tbody.appendChild(tr);
-});
+  /* ===== RENDER FUNCTION ===== */
+  function renderTable(data) {
+    tbody.innerHTML = "";
 
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+
+      Object.entries(row).forEach(([key, value]) => {
+        const td = document.createElement("td");
+
+        if (key.toLowerCase() === "price") {
+          const num = parseFloat(value);
+          td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
+          td.classList.add("center");
+        } else {
+          td.textContent = value;
+
+          if (key.toLowerCase() === "description") {
+            td.classList.add("center");
+          }
+        }
+
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
   }
-});
+
+  /* ===== FILTER EVENT ===== */
+  filter.addEventListener("change", () => {
+    const value = filter.value;
+    if (value === "all") {
+      renderTable(allData);
+    } else {
+      renderTable(allData.filter(row => row.Type === value));
+    }
+  });
+
+  /* Initial render */
+  renderTable(allData);
+}
 </script>
 
 </body>

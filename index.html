@@ -20,41 +20,50 @@
   <tbody></tbody>
 </table>
 
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+ 
 <script>
 const SHEET_ID = "10AKTBh0YJ2S0jtM3UNEljvJr0PX1g2SNHOd3j2xtbJ0";
 const SHEET_NAME = "Sheet1";
 
-const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`;
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
-fetch(url)
-  .then(res => res.text())
-  .then(csv => {
-    const rows = csv.split("\n").map(r => r.split(","));
-    const thead = document.querySelector("thead");
-    const tbody = document.querySelector("tbody");
+Papa.parse(url, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    const table = document.getElementById("priceTable");
+    const thead = table.querySelector("thead");
+    const tbody = table.querySelector("tbody");
 
-    // headers
+    // Clear table (important if page reloads)
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+
+    // Headers
     const headerRow = document.createElement("tr");
-    rows[0].forEach(cell => {
+    Object.keys(results.data[0]).forEach(key => {
       const th = document.createElement("th");
-      th.textContent = cell;
+      th.textContent = key;
       headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);
 
-    // data
-    rows.slice(1).forEach(row => {
-      if (!row[0]) return;
+    // Rows
+    results.data.forEach(row => {
       const tr = document.createElement("tr");
-      row.forEach(cell => {
+      Object.values(row).forEach(value => {
         const td = document.createElement("td");
-        td.textContent = cell;
+        td.textContent = value; // ← NO QUOTES
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
     });
-  });
+  }
+});
 </script>
+
 
 </body>
 </html>

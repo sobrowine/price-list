@@ -26,7 +26,16 @@
   font-size: 14px;
 }
     
-    body { font-family: Arial, sans-serif; padding: 40px; }
+  body {
+  font-family: Arial, sans-serif;
+  padding: 40px;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 16px;
+  }
+}
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #ddd; padding: 10px; }
     th { background: #f4f4f4; }
@@ -56,8 +65,16 @@ td {
   table {
   width: 70%;
   max-width: 800px;
-  margin-left: 20px;;
+  margin-left: 40px;
 }
+
+@media (max-width: 600px) {
+  table {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
 
   </style>
 </head>

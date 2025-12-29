@@ -75,6 +75,45 @@ td {
   }
 }
 
+ @media (max-width: 600px) {
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filters label {
+    margin-left: 0 !important;
+  }
+
+  .filters input,
+  .filters select {
+    width: 100%;
+  }
+}
+<div class="table-wrapper">
+  <table id="priceTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+    .table-wrapper {
+  overflow-x: auto;
+}
+@media (max-width: 600px) {
+  th, td {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+@media (max-width: 600px) {
+  select, input {
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
 
   </style>
 </head>

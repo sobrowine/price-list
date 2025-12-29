@@ -229,6 +229,19 @@ td {
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
  
 <script>
+let lastSelectedItem = null;
+
+  lastSelectedItem = {
+  item: row.Item,
+  size: row.Size,
+  price: row.Price,
+  qty: qty
+};
+
+const stickyBtn = document.getElementById("stickyWhatsAppBtn");
+stickyBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+
+  
 const SHEET_ID = "10AKTBh0YJ2S0jtM3UNEljvJr0PX1g2SNHOd3j2xtbJ0";
 const SHEET_NAME = "Sheet1";
 
@@ -304,7 +317,7 @@ const cardContainer = document.getElementById("cardContainer");
     tbody.appendChild(tr);
 
     /* ===== CARD ===== */
-   let qty = 1;
+   let qty = 0;
 
 const card = document.createElement("div");
 card.className = "card";
@@ -316,7 +329,7 @@ card.innerHTML = `
 
   <div class="qty-control">
     <button class="minus">−</button>
-    <span class="qty">1</span>
+    <span class="qty">0</span>
     <button class="plus">+</button>
   </div>
 
@@ -335,7 +348,7 @@ plusBtn.onclick = () => {
 };
 
 minusBtn.onclick = () => {
-  if (qty > 1) {
+  if (qty > 0) {
     qty--;
     qtySpan.textContent = qty;
   }
@@ -343,6 +356,11 @@ minusBtn.onclick = () => {
 
 waBtn.onclick = (e) => {
   e.preventDefault();
+
+  if (qty === 0) {
+    alert("Please select a quantity before ordering.");
+    return;
+  }
 
   const message = encodeURIComponent(
     `Hi, I'd like to order:\n${row.Item} - ${row.Size}\nQuantity: ${qty}\nPrice: $${parseFloat(row.Price).toFixed(2)}`
@@ -353,6 +371,7 @@ waBtn.onclick = (e) => {
     "_blank"
   );
 };
+
 
     /* ===== FILTER EVENT ===== */
     function applyFilters() {

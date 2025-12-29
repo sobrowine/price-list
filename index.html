@@ -222,13 +222,12 @@
                 <button class="plus">+</button>
               </div>
 
-              <a href="#" class="whatsapp-btn">Order via WhatsApp</a>
-            `;
+                    `;
 
             const qtySpan = card.querySelector(".qty");
             const plusBtn = card.querySelector(".plus");
             const minusBtn = card.querySelector(".minus");
-            const waBtn = card.querySelector(".whatsapp-btn");
+           
 
             minusBtn.disabled = true;
 
@@ -255,16 +254,7 @@
               return `https://wa.me/${WHATSAPP_NUMBER}?text=${buildMessage()}`;
             }
 
-            waBtn.onclick = (e) => {
-              e.preventDefault();
-              if (qty === 0) {
-                alert("Please select a quantity before ordering.");
-                return;
-              }
-              const link = getWaLink();
-              stickyBtn.href = link;          // update sticky button to last selected item
-              window.open(link, "_blank");
-            };
+           
 
             // Optional: tapping the card updates sticky button to this item (even before ordering)
             card.addEventListener("click", () => {

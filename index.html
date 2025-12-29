@@ -114,6 +114,39 @@ td {
   }
 }
 
+    /* ===== CARD STYLES ===== */
+.cards {
+  display: none;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.card h3 {
+  margin: 0 0 6px 0;
+}
+
+.card p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* ===== MOBILE SWITCH ===== */
+@media (max-width: 600px) {
+  table {
+    display: none;
+  }
+
+  .cards {
+    display: block;
+  }
+}
+
 
   </style>
 </head>
@@ -143,6 +176,7 @@ td {
   <thead></thead>
   <tbody></tbody>
 </table>
+<div id="cardContainer" class="cards"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
  
@@ -162,6 +196,7 @@ Papa.parse(url, {
     const tbody = table.querySelector("tbody");
     const filter = document.getElementById("typeFilter");
     const searchInput = document.getElementById("searchInput");
+const cardContainer = document.getElementById("cardContainer");
 
 
     let allData = results.data;
@@ -193,33 +228,47 @@ Papa.parse(url, {
     });
 
     /* ===== RENDER FUNCTION ===== */
-    function renderTable(data) {
-      tbody.innerHTML = "";
+   function renderTable(data) {
+  tbody.innerHTML = "";
+  cardContainer.innerHTML = "";
 
-      data.forEach(row => {
-        const tr = document.createElement("tr");
+  data.forEach(row => {
+    /* ===== TABLE ROW ===== */
+    const tr = document.createElement("tr");
 
-        Object.entries(row).forEach(([key, value]) => {
-          const td = document.createElement("td");
+    Object.entries(row).forEach(([key, value]) => {
+      const td = document.createElement("td");
 
-          if (key.toLowerCase() === "price") {
-            const num = parseFloat(value);
-            td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
-            td.classList.add("center");
-          } else {
-            td.textContent = value;
+      if (key.toLowerCase() === "price") {
+        const num = parseFloat(value);
+        td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
+        td.classList.add("center");
+      } else {
+        td.textContent = value;
+        if (key.toLowerCase() === "size") {
+          td.classList.add("center");
+        }
+      }
 
-            if (key.toLowerCase() === "size") {
-              td.classList.add("center");
-            }
-          }
+      tr.appendChild(td);
+    });
 
-          tr.appendChild(td);
-        });
+    tbody.appendChild(tr);
 
-        tbody.appendChild(tr);
-      });
-    }
+    /* ===== CARD ===== */
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <h3>${row.Item}</h3>
+      <p><strong>Size:</strong> ${row.Size}</p>
+      <p><strong>Price:</strong> $${parseFloat(row.Price).toFixed(2)}</p>
+      ${row.Type ? `<p><strong>Type:</strong> ${row.Type}</p>` : ""}
+    `;
+
+    cardContainer.appendChild(card);
+  });
+}
 
     /* ===== FILTER EVENT ===== */
     function applyFilters() {

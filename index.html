@@ -263,7 +263,7 @@ const cardContainer = document.getElementById("cardContainer");
       <h3>${row.Item}</h3>
       <p><strong>Size:</strong> ${row.Size}</p>
       <p><strong>Price:</strong> $${parseFloat(row.Price).toFixed(2)}</p>
-      ${row.Type ? `<p><strong>Type:</strong> ${row.Type}</p>` : ""}
+      
     `;
 
     cardContainer.appendChild(card);

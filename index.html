@@ -1,416 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Price List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <a
-  href="https://wa.me/15551234567?text=Hello!%20I%20want%20to%20place%20an%20order."
-  target="_blank"
-  style="display:inline-block; padding:12px 20px; background:#25D366; color:#fff; text-decoration:none; border-radius:6px;"
->
-  Order via WhatsApp
-</a>
-
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    .subtitle { color:#666; margin-bottom:20px; }
+    .subtitle p { margin:4px 0; font-size:14px; }
 
-    .subtitle {
-  color: #666;
-  margin-bottom: 20px;
-}
+    body { font-family: Arial, sans-serif; padding:40px; }
+    @media (max-width: 600px) { body { padding:16px; } }
 
-.subtitle p {
-  margin: 4px 0;
-  font-size: 14px;
-}
-    
-  body {
-  font-family: Arial, sans-serif;
-  padding: 40px;
-}
-
-@media (max-width: 600px) {
-  body {
-    padding: 16px;
-  }
-}
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 70%; max-width: 800px; margin-left: 40px; border-collapse: collapse; }
     th, td { border: 1px solid #ddd; padding: 10px; }
     th { background: #f4f4f4; }
-    .center {
-  text-align: center;
-}
-/* Column sizing */
-th:nth-child(1),
-td:nth-child(1) {
-  width: 70%;
-}
+    .center { text-align: center; }
 
-th:nth-child(2),
-td:nth-child(2) {
-  width: 10%;
-}
+    /* Column sizing (for desktop table) */
+    th:nth-child(1), td:nth-child(1) { width: 70%; }
+    th:nth-child(2), td:nth-child(2) { width: 10%; }
+    th:nth-child(3), td:nth-child(3) { width: 20%; }
 
-th:nth-child(3),
-td:nth-child(3) {
-  width: 20%;
-}
+    td { white-space: nowrap; }
 
-/* Optional: keep text tidy */
-td {
-  white-space: nowrap;
-}
-  table {
-  width: 70%;
-  max-width: 800px;
-  margin-left: 40px;
-}
+    @media (max-width: 600px) {
+      table { width: 100%; margin-left: 0; }
+      th, td { padding: 8px; font-size: 14px; }
+      select, input { padding: 10px; font-size: 16px; }
+    }
 
-@media (max-width: 600px) {
-  table {
-    width: 100%;
-    margin-left: 0;
-  }
-}
+    /* Filters layout on mobile */
+    .filters { margin-bottom: 16px; }
+    @media (max-width: 600px) {
+      .filters { display:flex; flex-direction:column; gap:10px; }
+      .filters input, .filters select { width: 100%; }
+    }
 
- @media (max-width: 600px) {
-  .filters {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+    /* Cards (mobile) */
+    .cards { display:none; }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+    .card h3 { margin: 0 0 6px 0; }
+    .card p { margin: 4px 0; font-size: 14px; }
 
-  .filters label {
-    margin-left: 0 !important;
-  }
+    @media (max-width: 600px) {
+      table { display:none; }
+      .cards { display:block; }
+    }
 
-  .filters input,
-  .filters select {
-    width: 100%;
-  }
-}
-<div class="table-wrapper">
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .qty-control button {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #ccc;
+      background: #f4f4f4;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .qty-control span { min-width: 20px; text-align: center; }
+
+    .whatsapp-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px;
+      background: #25D366;
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 6px;
+      font-weight: bold;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Sticky bottom bar (mobile) */
+    #stickyOrderBar { display: none; }
+    @media (max-width: 600px) {
+      #stickyOrderBar {
+        display: block;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #25D366;
+        padding: 12px;
+        text-align: center;
+        z-index: 999;
+      }
+      #stickyWhatsAppBtn {
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        text-decoration: none;
+      }
+      body { padding-bottom: 80px; } /* avoid overlap */
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Price List</h1>
+
+  <div class="subtitle">
+    <p>- Free Delivery on all orders over $100 / $10 delivery fee otherwise.</p>
+    <p>- Order by Wednesday receive by Friday 5PM.</p>
+    <p>- Prices exclude sales taxes and are subject to change without prior notice.</p>
+    <p>- Not on the list? Just ask!</p>
+  </div>
+
+  <div class="filters">
+    <label for="typeFilter"><strong>Filter by type:</strong></label>
+    <select id="typeFilter">
+      <option value="all">All</option>
+    </select>
+
+    <label for="searchInput" style="margin-left: 16px;"><strong>Search:</strong></label>
+    <input id="searchInput" type="text" placeholder="Search items..." style="margin-left: 10px; width: 200px;">
+  </div>
+
   <table id="priceTable">
     <thead></thead>
     <tbody></tbody>
   </table>
-</div>
 
-    .table-wrapper {
-  overflow-x: auto;
-}
-@media (max-width: 600px) {
-  th, td {
-    padding: 8px;
-    font-size: 14px;
-  }
-}
-@media (max-width: 600px) {
-  select, input {
-    padding: 10px;
-    font-size: 16px;
-  }
-}
+  <div id="cardContainer" class="cards"></div>
 
-    /* ===== CARD STYLES ===== */
-.cards {
-  display: none;
-}
-
-.card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
-  background: #fff;
-}
-
-.card h3 {
-  margin: 0 0 6px 0;
-}
-
-.card p {
-  margin: 4px 0;
-  font-size: 14px;
-}
-
-/* ===== MOBILE SWITCH ===== */
-@media (max-width: 600px) {
-  table {
-    display: none;
-  }
-
-  .cards {
-    display: block;
-  }
-}
-.qty-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.qty-control button {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #ccc;
-  background: #f4f4f4;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.qty-control span {
-  min-width: 20px;
-  text-align: center;
-}
-#stickyOrderBar {
-  display: none;
-}
-
-@media (max-width: 600px) {
-  #stickyOrderBar {
-    display: block;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #25D366;
-    padding: 12px;
-    text-align: center;
-    z-index: 999;
-  }
-
-  #stickyWhatsAppBtn {
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    text-decoration: none;
-  }
-
-  body {
-    padding-bottom: 70px; /* prevents overlap */
-  }
-}
-
-
-  </style>
-</head>
-<body>
-
-<h1>Price List</h1>
-<div class="subtitle">
-<p>- Free Delivery on all orders over $100 / $10 delivery fee otherwise.</p>
-  <p>- Order by Wednesday receive by Friday 5PM.</p>
-<p>- Prices exclude sales taxes and are subject to change without prior notice.</p>
- <p>- Not on the list? Just ask!</p> 
-</div>
-<label for="typeFilter"><strong>Filter by type:</strong></label>
-<select id="typeFilter">
-  <option value="all">All</option>
-</select>
-
-<label for="searchInput"><strong>Search:</strong></label>
-<input
-  type="text"
-  id="searchInput"
-  placeholder="Search items..."
-  style="margin-left: 10px; padding: 5px; width: 200px;"
->
-  
-<table id="priceTable">
-  <thead></thead>
-  <tbody></tbody>
-</table>
-<div id="cardContainer" class="cards"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
- 
-<script>
-let lastSelectedItem = null;
-
-  lastSelectedItem = {
-  item: row.Item,
-  size: row.Size,
-  price: row.Price,
-  qty: qty
-};
-
-const stickyBtn = document.getElementById("stickyWhatsAppBtn");
-stickyBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
-
-  
-const SHEET_ID = "10AKTBh0YJ2S0jtM3UNEljvJr0PX1g2SNHOd3j2xtbJ0";
-const SHEET_NAME = "Sheet1";
-
-const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
-
-Papa.parse(url, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete: function(results) {
-    const table = document.getElementById("priceTable");
-    const thead = table.querySelector("thead");
-    const tbody = table.querySelector("tbody");
-    const filter = document.getElementById("typeFilter");
-    const searchInput = document.getElementById("searchInput");
-const cardContainer = document.getElementById("cardContainer");
-
-
-    let allData = results.data;
-
-    thead.innerHTML = "";
-    tbody.innerHTML = "";
-
-    /* ===== HEADERS ===== */
-    const headerRow = document.createElement("tr");
-    Object.keys(allData[0]).forEach(key => {
-      const th = document.createElement("th");
-      th.textContent = key;
-
-      if (key.toLowerCase() === "size" || key.toLowerCase() === "price") {
-        th.classList.add("center");
-      }
-
-      headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-
-    /* ===== BUILD FILTER OPTIONS ===== */
-    const types = [...new Set(allData.map(row => row.Type))].filter(Boolean);
-    types.forEach(type => {
-      const option = document.createElement("option");
-      option.value = type;
-      option.textContent = type;
-      filter.appendChild(option);
-    });
-
-    /* ===== RENDER FUNCTION ===== */
-   function renderTable(data) {
-  tbody.innerHTML = "";
-  cardContainer.innerHTML = "";
-
-  data.forEach(row => {
-    /* ===== TABLE ROW ===== */
-    const tr = document.createElement("tr");
-
-    Object.entries(row).forEach(([key, value]) => {
-      const td = document.createElement("td");
-
-      if (key.toLowerCase() === "price") {
-        const num = parseFloat(value);
-        td.textContent = isNaN(num) ? value : `$${num.toFixed(2)}`;
-        td.classList.add("center");
-      } else {
-        td.textContent = value;
-        if (key.toLowerCase() === "size") {
-          td.classList.add("center");
-        }
-      }
-
-      tr.appendChild(td);
-    });
-
-    tbody.appendChild(tr);
-
-    /* ===== CARD ===== */
-   let qty = 0;
-
-const card = document.createElement("div");
-card.className = "card";
-
-card.innerHTML = `
-  <h3>${row.Item}</h3>
-  <p><strong>Size:</strong> ${row.Size}</p>
-  <p><strong>Price:</strong> $${parseFloat(row.Price).toFixed(2)}</p>
-
-  <div class="qty-control">
-    <button class="minus">−</button>
-    <span class="qty">0</span>
-    <button class="plus">+</button>
+  <div id="stickyOrderBar">
+    <a id="stickyWhatsAppBtn" href="#" target="_blank">Order via WhatsApp</a>
   </div>
 
-  <a href="#" class="whatsapp-btn">
-    Order via WhatsApp
-  </a>
-`;
-const qtySpan = card.querySelector(".qty");
-const plusBtn = card.querySelector(".plus");
-const minusBtn = card.querySelector(".minus");
-const waBtn = card.querySelector(".whatsapp-btn");
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script>
+    const WHATSAPP_NUMBER = "15551234567"; // <-- CHANGE THIS
+    const SHEET_ID = "10AKTBh0YJ2S0jtM3UNEljvJr0PX1g2SNHOd3j2xtbJ0";
+    const SHEET_NAME = "Sheet1";
 
-plusBtn.onclick = () => {
-  qty++;
-  qtySpan.textContent = qty;
-};
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
-minusBtn.onclick = () => {
-  if (qty > 0) {
-    qty--;
-    qtySpan.textContent = qty;
-  }
-};
+    Papa.parse(url, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        const table = document.getElementById("priceTable");
+        const thead = table.querySelector("thead");
+        const tbody = table.querySelector("tbody");
+        const cardContainer = document.getElementById("cardContainer");
+        const filter = document.getElementById("typeFilter");
+        const searchInput = document.getElementById("searchInput");
+        const stickyBtn = document.getElementById("stickyWhatsAppBtn");
 
-waBtn.onclick = (e) => {
-  e.preventDefault();
+        let allData = results.data.filter(r => Object.values(r).some(v => String(v).trim() !== ""));
 
-  if (qty === 0) {
-    alert("Please select a quantity before ordering.");
-    return;
-  }
+        // Build headers once (table view)
+        thead.innerHTML = "";
+        const headerRow = document.createElement("tr");
+        Object.keys(allData[0] || {}).forEach(key => {
+          const th = document.createElement("th");
+          th.textContent = key;
+          if (key.toLowerCase() === "size" || key.toLowerCase() === "price") th.classList.add("center");
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
 
-  const message = encodeURIComponent(
-    `Hi, I'd like to order:\n${row.Item} - ${row.Size}\nQuantity: ${qty}\nPrice: $${parseFloat(row.Price).toFixed(2)}`
-  );
+        // Build Type filter options once
+        const types = [...new Set(allData.map(r => r.Type).filter(Boolean))];
+        types.forEach(type => {
+          const opt = document.createElement("option");
+          opt.value = type;
+          opt.textContent = type;
+          filter.appendChild(opt);
+        });
 
-  window.open(
-    `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`,
-    "_blank"
-  );
-};
+        function formatPrice(v) {
+          const n = parseFloat(v);
+          return isNaN(n) ? v : `$${n.toFixed(2)}`;
+        }
 
+        function render(data) {
+          tbody.innerHTML = "";
+          cardContainer.innerHTML = "";
 
-    /* ===== FILTER EVENT ===== */
-    function applyFilters() {
-  const typeValue = filter.value;
-  const searchValue = searchInput.value.toLowerCase();
+          data.forEach(row => {
+            // --- TABLE ROW ---
+            const tr = document.createElement("tr");
+            Object.entries(row).forEach(([key, value]) => {
+              const td = document.createElement("td");
+              if (key.toLowerCase() === "price") {
+                td.textContent = formatPrice(value);
+                td.classList.add("center");
+              } else {
+                td.textContent = value;
+                if (key.toLowerCase() === "size") td.classList.add("center");
+              }
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
 
-  let filtered = allData;
+            // --- CARD (mobile) ---
+            let qty = 0;
 
-  // Type filter
-  if (typeValue !== "all") {
-    filtered = filtered.filter(row => row.Type === typeValue);
-  }
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <h3>${row.Item || ""}</h3>
+              <p><strong>Size:</strong> ${row.Size || ""}</p>
+              <p><strong>Price:</strong> ${formatPrice(row.Price)}</p>
 
-  // Search filter
-  if (searchValue) {
-    filtered = filtered.filter(row =>
-      Object.values(row).some(value =>
-        String(value).toLowerCase().includes(searchValue)
-      )
-    );
-  }
+              <div class="qty-control">
+                <button class="minus">−</button>
+                <span class="qty">0</span>
+                <button class="plus">+</button>
+              </div>
 
-  renderTable(filtered);
-}
+              <a href="#" class="whatsapp-btn">Order via WhatsApp</a>
+            `;
 
-filter.addEventListener("change", applyFilters);
-searchInput.addEventListener("input", applyFilters);
+            const qtySpan = card.querySelector(".qty");
+            const plusBtn = card.querySelector(".plus");
+            const minusBtn = card.querySelector(".minus");
+            const waBtn = card.querySelector(".whatsapp-btn");
 
+            minusBtn.disabled = true;
 
-    /* Initial render */
-    renderTable(allData);
-  }
-});
-</script>
-<div id="stickyOrderBar">
-  <a id="stickyWhatsAppBtn" href="#" target="_blank">
-    Order via WhatsApp
-  </a>
-</div>
+            plusBtn.onclick = () => {
+              qty++;
+              qtySpan.textContent = qty;
+              minusBtn.disabled = qty === 0;
+            };
 
+            minusBtn.onclick = () => {
+              if (qty > 0) qty--;
+              qtySpan.textContent = qty;
+              minusBtn.disabled = qty === 0;
+            };
+
+            function buildMessage() {
+              const priceText = formatPrice(row.Price);
+              return encodeURIComponent(
+                `Hi, I'd like to order:\n${row.Item || ""} - ${row.Size || ""}\nQuantity: ${qty}\nPrice: ${priceText}`
+              );
+            }
+
+            function getWaLink() {
+              return `https://wa.me/${WHATSAPP_NUMBER}?text=${buildMessage()}`;
+            }
+
+            waBtn.onclick = (e) => {
+              e.preventDefault();
+              if (qty === 0) {
+                alert("Please select a quantity before ordering.");
+                return;
+              }
+              const link = getWaLink();
+              stickyBtn.href = link;          // update sticky button to last selected item
+              window.open(link, "_blank");
+            };
+
+            // Optional: tapping the card updates sticky button to this item (even before ordering)
+            card.addEventListener("click", () => {
+              if (qty > 0) stickyBtn.href = getWaLink();
+            });
+
+            cardContainer.appendChild(card);
+          });
+        }
+
+        function applyFilters() {
+          const typeValue = filter.value;
+          const searchValue = searchInput.value.toLowerCase().trim();
+
+          let filtered = allData;
+
+          if (typeValue !== "all") filtered = filtered.filter(r => r.Type === typeValue);
+
+          if (searchValue) {
+            filtered = filtered.filter(r =>
+              Object.values(r).some(v => String(v).toLowerCase().includes(searchValue))
+            );
+          }
+
+          render(filtered);
+        }
+
+        filter.addEventListener("change", applyFilters);
+        searchInput.addEventListener("input", applyFilters);
+
+        // initial render
+        render(allData);
+      }
+    });
+  </script>
 </body>
 </html>

@@ -76,7 +76,22 @@
       cursor: not-allowed;
     }
     .qty-control span { min-width: 24px; text-align: center; font-weight: bold; }
+.card {
+  position: relative;
+}
 
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-header h3 {
+  margin: 0;
+  padding-right: 10px;
+}
+
+    
     /* Sticky bottom bar (mobile) */
     #stickyOrderBar { display: none; }
     @media (max-width: 600px) {
@@ -292,17 +307,21 @@
 
             const card = document.createElement("div");
             card.className = "card";
-            card.innerHTML = `
-              <h3>${itemName}</h3>
-              <p><strong>Size:</strong> ${itemSize}</p>
-              <p><strong>Price:</strong> ${formatPrice(itemPrice)}</p>
+           card.innerHTML = `
+  <div class="card-header">
+    <h3>${itemName}</h3>
 
-              <div class="qty-control">
-                <button class="minus">−</button>
-                <span class="qty">0</span>
-                <button class="plus">+</button>
-              </div>
-            `;
+    <div class="qty-control">
+      <button class="minus">−</button>
+      <span class="qty">0</span>
+      <button class="plus">+</button>
+    </div>
+  </div>
+
+  <p><strong>Size:</strong> ${itemSize}</p>
+  <p><strong>Price:</strong> ${formatPrice(itemPrice)}</p>
+`;
+
 
             const qtySpan = card.querySelector(".qty");
             const plusBtn = card.querySelector(".plus");

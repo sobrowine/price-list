@@ -146,6 +146,54 @@ td {
     display: block;
   }
 }
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.qty-control button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  background: #f4f4f4;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.qty-control span {
+  min-width: 20px;
+  text-align: center;
+}
+#stickyOrderBar {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  #stickyOrderBar {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #25D366;
+    padding: 12px;
+    text-align: center;
+    z-index: 999;
+  }
+
+  #stickyWhatsAppBtn {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  body {
+    padding-bottom: 70px; /* prevents overlap */
+  }
+}
 
 
   </style>
@@ -256,19 +304,55 @@ const cardContainer = document.getElementById("cardContainer");
     tbody.appendChild(tr);
 
     /* ===== CARD ===== */
-    const card = document.createElement("div");
-    card.className = "card";
+   let qty = 1;
 
-    card.innerHTML = `
-      <h3>${row.Item}</h3>
-      <p><strong>Size:</strong> ${row.Size}</p>
-      <p><strong>Price:</strong> $${parseFloat(row.Price).toFixed(2)}</p>
-      
-    `;
+const card = document.createElement("div");
+card.className = "card";
 
-    cardContainer.appendChild(card);
-  });
-}
+card.innerHTML = `
+  <h3>${row.Item}</h3>
+  <p><strong>Size:</strong> ${row.Size}</p>
+  <p><strong>Price:</strong> $${parseFloat(row.Price).toFixed(2)}</p>
+
+  <div class="qty-control">
+    <button class="minus">−</button>
+    <span class="qty">1</span>
+    <button class="plus">+</button>
+  </div>
+
+  <a href="#" class="whatsapp-btn">
+    Order via WhatsApp
+  </a>
+`;
+const qtySpan = card.querySelector(".qty");
+const plusBtn = card.querySelector(".plus");
+const minusBtn = card.querySelector(".minus");
+const waBtn = card.querySelector(".whatsapp-btn");
+
+plusBtn.onclick = () => {
+  qty++;
+  qtySpan.textContent = qty;
+};
+
+minusBtn.onclick = () => {
+  if (qty > 1) {
+    qty--;
+    qtySpan.textContent = qty;
+  }
+};
+
+waBtn.onclick = (e) => {
+  e.preventDefault();
+
+  const message = encodeURIComponent(
+    `Hi, I'd like to order:\n${row.Item} - ${row.Size}\nQuantity: ${qty}\nPrice: $${parseFloat(row.Price).toFixed(2)}`
+  );
+
+  window.open(
+    `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`,
+    "_blank"
+  );
+};
 
     /* ===== FILTER EVENT ===== */
     function applyFilters() {
@@ -303,6 +387,11 @@ searchInput.addEventListener("input", applyFilters);
   }
 });
 </script>
+<div id="stickyOrderBar">
+  <a id="stickyWhatsAppBtn" href="#" target="_blank">
+    Order via WhatsApp
+  </a>
+</div>
 
 </body>
 </html>

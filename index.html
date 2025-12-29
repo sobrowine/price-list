@@ -235,12 +235,14 @@
               qty++;
               qtySpan.textContent = qty;
               minusBtn.disabled = qty === 0;
+              updateSticky();
             };
 
             minusBtn.onclick = () => {
               if (qty > 0) qty--;
               qtySpan.textContent = qty;
               minusBtn.disabled = qty === 0;
+              updateSticky();
             };
 
             function buildMessage() {
@@ -254,7 +256,19 @@
               return `https://wa.me/${WHATSAPP_NUMBER}?text=${buildMessage()}`;
             }
 
-           
+           function updateSticky() {
+  if (qty === 0) return; // only update when quantity > 0
+  stickyBtn.href = getWaLink();
+}
+
+    stickyBtn.addEventListener("click", (e) => {
+  if (!stickyBtn.href || stickyBtn.href.endsWith("#")) {
+    e.preventDefault();
+    alert("Select an item and quantity first.");
+  }
+});
+stickyBtn.href = "#";
+        
 
             // Optional: tapping the card updates sticky button to this item (even before ordering)
             card.addEventListener("click", () => {

@@ -247,19 +247,23 @@
   };
 }
 
-    function updateSticky(stickyBtn, stickySubtext) {
-      const { entries, itemCount } = cartSummary();
+function updateSticky(stickyBtn, stickySubtext) {
+  const { entries, itemCount } = cartSummary();
 
-      if (entries.length === 0) {
-        stickyBtn.href = "#";
-        stickySubtext.textContent = "Select quantities to build your order";
-        return;
-      }
+  if (entries.length === 0) {
+    stickyBtn.href = "#";
+    stickySubtext.textContent = "Select quantities to build your order";
+    return;
+  }
 
-      const msg = buildCartMessage();
-      stickyBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
-      stickySubtext.textContent = `${itemCount} item${itemCount === 1 ? "" : "s"} selected`;
-    }
+  const summary = buildCartMessage(); // new version returns message + totals
+  const msg = summary.message;
+
+  stickyBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+
+  // Show total on sticky bar (rounded to 2 decimals)
+  stickySubtext.textContent = `${itemCount} item${itemCount === 1 ? "" : "s"} • Total: ${formatPrice(summary.total)}`;
+}
 
     // ===== LOAD SHEET =====
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;

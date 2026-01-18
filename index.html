@@ -207,13 +207,9 @@
 
    function buildCartMessage() {
   const { entries } = cartSummary();
-  const lines = [
-    "HIT SEND TO CONFIRM YOUR ORDER BELOW",
-    ""
-  ];
+  const lines = ["HIT SEND TO CONFIRM YOUR ORDER BELOW", ""];
 
   let subtotal = 0;
-
   entries.forEach(e => {
     const price = parseFloat(e.price) || 0;
     subtotal += price * e.qty;
@@ -226,22 +222,29 @@
 
   lines.push("");
 
-  // --- Calculate Fees & Taxes ---
+  // --- FEES & TAXES ---
   let deliveryFee = subtotal < 100 ? 10 : 0;
   const taxRate = 0.088975;
   const taxAmount = (subtotal + deliveryFee) * taxRate;
   const total = subtotal + deliveryFee + taxAmount;
 
-  // --- Summary Section ---
+  // --- SUMMARY ---
   lines.push(`Subtotal: ${formatPrice(subtotal)}`);
-  if (deliveryFee > 0) lines.push(`Delivery Fee: ${formatPrice(deliveryFee)}`);
+  if (deliveryFee > 0)
+    lines.push(`Delivery Fee: ${formatPrice(deliveryFee)}`);
   lines.push(`NYC Sales Tax (8.8975%): ${formatPrice(taxAmount)}`);
   lines.push(`Total: ${formatPrice(total)}`);
 
   lines.push("");
   lines.push("Thank you!");
 
-  return encodeURIComponent(lines.join("\n"));
+  return {
+    message: encodeURIComponent(lines.join("\n")),
+    subtotal,
+    deliveryFee,
+    taxAmount,
+    total
+  };
 }
 
     function updateSticky(stickyBtn, stickySubtext) {

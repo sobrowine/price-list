@@ -208,8 +208,8 @@
 
 function buildCartMessage() {
   const { entries } = cartSummary();
-  const lines = ["HIT SEND TO CONFIRM YOUR ORDER BELOW", ""];
-
+  const lines = ["HIT SEND TO SUBMIT ORDER", ""];
+const lines = ["BY SUBMITTNG THE ORDER YOU'RE CONFIRMING ORDER DETAILS", ""];
   let subtotal = 0;
   entries.forEach(e => {
     const price = parseFloat(e.price) || 0;

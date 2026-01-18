@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +18,7 @@
     th { background: #f4f4f4; }
     .center { text-align: center; }
 
-    / Column sizing (for desktop table) /
+    /* Column sizing (for desktop table) */
     th:nth-child(1), td:nth-child(1) { width: 70%; }
     th:nth-child(2), td:nth-child(2) { width: 10%; }
     th:nth-child(3), td:nth-child(3) { width: 20%; }
@@ -30,7 +31,7 @@
       select, input { padding: 10px; font-size: 16px; }
     }
 
-    / Filters layout /
+    /* Filters layout */
     .filters { margin-bottom: 16px; }
     @media (max-width: 600px) {
       .filters { display:flex; flex-direction:column; gap:10px; }
@@ -39,7 +40,7 @@
       .filters input#searchInput { margin-left: 0 !important; width: 100% !important; }
     }
 
-    / Cards (mobile) /
+    /* Cards (mobile) */
     .cards { display:none; }
     .card {
       border: 1px solid #ddd;
@@ -81,7 +82,7 @@
 }
 
 .qty-control {
-  margin-top: 0;          / remove vertical push /
+  margin-top: 0;          /* remove vertical push */
 }
 @media (max-width: 600px) {
   .qty-control button {
@@ -104,7 +105,7 @@
 }
 
     
-    / Sticky bottom bar (mobile) /
+    /* Sticky bottom bar (mobile) */
     #stickyOrderBar { display: none; }
     @media (max-width: 600px) {
       #stickyOrderBar {
@@ -128,10 +129,10 @@
         font-size: 12px;
         margin-top: 4px;
       }
-      body { padding-bottom: 90px; } / avoid overlap /
+      body { padding-bottom: 90px; } /* avoid overlap */
     }
 
-    / Make search bar same width as cards on mobile /
+    /* Make search bar same width as cards on mobile */
 @media (max-width: 600px) {
   .filters input#searchInput {
     width: 100% !important;
@@ -171,16 +172,16 @@
   <div id="cardContainer" class="cards"></div>
 
   <div id="stickyOrderBar">
-    <a id="stickyWhatsAppBtn" href="#" target="blank">Order via WhatsApp</a>
+    <a id="stickyWhatsAppBtn" href="#" target="_blank">Order via WhatsApp</a>
     <span id="stickySubtext">Select quantities to build your order</span>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
     // ===== CONFIG =====
-    const WHATSAPPNUMBER = "19176258009"; // <-- CHANGE THIS
-    const SHEETID = "10AKTBh0YJ2S0jtM3UNEljvJr0PX1g2SNHOd3j2xtbJ0";
-    const SHEETNAME = "Sheet1";
+    const WHATSAPP_NUMBER = "19176258009"; // <-- CHANGE THIS
+    const SHEET_ID = "10AKTBh0YJ2S0jtM3UNEljvJr0PX1g2SNHOd3j2xtbJ0";
+    const SHEET_NAME = "Sheet1";
 
     // ===== CART STATE (persists across filters/re-render) =====
     // key -> { item, size, price, qty }
@@ -189,14 +190,14 @@
     // ===== HELPERS =====
     function formatPrice(v) {
       const n = parseFloat(v);
-      return isNaN(n) ? v : $${n.toFixed(2)};
+      return isNaN(n) ? v : `$${n.toFixed(2)}`;
     }
 
     function makeKey(row) {
       // Stable key for an item variant. Adjust if you have a unique ID column.
       const item = (row.Item || "").trim();
       const size = (row.Size || "").trim();
-      return ${item}_${size}.toLowerCase();
+      return `${item}__${size}`.toLowerCase();
     }
 
     function cartSummary() {
@@ -205,25 +206,44 @@
       return { entries, itemCount };
     }
 
-    function buildCartMessage() {
-      const { entries } = cartSummary();
-      const lines = [
-        "HIT SEND TO CONFIRM YOUR ORDER BELOW",
-        ""
-      ];
+   function buildCartMessage() {
+  const { entries } = cartSummary();
+  const lines = [
+    "HIT SEND TO CONFIRM YOUR ORDER BELOW",
+    ""
+  ];
 
-      entries.forEach(e => {
-        const priceTxt = formatPrice(e.price);
-        const name = e.item || "";
-        const size = e.size ?  (${e.size}) : "";
-        lines.push(${e.qty} x ${name}${size} - ${priceTxt});
-      });
+  let subtotal = 0;
 
-      lines.push("");
-      lines.push("Thank you!");
+  entries.forEach(e => {
+    const price = parseFloat(e.price) || 0;
+    subtotal += price * e.qty;
 
-      return encodeURIComponent(lines.join("\n"));
-    }
+    const priceTxt = formatPrice(price);
+    const name = e.item || "";
+    const size = e.size ? ` (${e.size})` : "";
+    lines.push(`${e.qty} x ${name}${size} - ${priceTxt}`);
+  });
+
+  lines.push("");
+
+  // --- Calculate Fees & Taxes ---
+  let deliveryFee = subtotal < 100 ? 10 : 0;
+  const taxRate = 0.088975;
+  const taxAmount = (subtotal + deliveryFee) * taxRate;
+  const total = subtotal + deliveryFee + taxAmount;
+
+  // --- Summary Section ---
+  lines.push(`Subtotal: ${formatPrice(subtotal)}`);
+  if (deliveryFee > 0) lines.push(`Delivery Fee: ${formatPrice(deliveryFee)}`);
+  lines.push(`NYC Sales Tax (8.8975%): ${formatPrice(taxAmount)}`);
+  lines.push(`Total: ${formatPrice(total)}`);
+
+  lines.push("");
+  lines.push("Thank you!");
+
+  return encodeURIComponent(lines.join("\n"));
+}
 
     function updateSticky(stickyBtn, stickySubtext) {
       const { entries, itemCount } = cartSummary();
@@ -235,12 +255,12 @@
       }
 
       const msg = buildCartMessage();
-      stickyBtn.href = https://wa.me/${WHATSAPPNUMBER}?text=${msg};
-      stickySubtext.textContent = ${itemCount} item${itemCount === 1 ? "" : "s"} selected;
+      stickyBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+      stickySubtext.textContent = `${itemCount} item${itemCount === 1 ? "" : "s"} selected`;
     }
 
     // ===== LOAD SHEET =====
-    const url = https://docs.google.com/spreadsheets/d/${SHEETID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEETNAME)};
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
     Papa.parse(url, {
       download: true,
@@ -329,7 +349,7 @@
 
             const card = document.createElement("div");
             card.className = "card";
-           card.innerHTML = 
+           card.innerHTML = `
   <div class="card-header">
     <h3>${itemName}</h3>
 
@@ -342,7 +362,8 @@
 
   <p><strong>Size:</strong> ${itemSize}</p>
   <p><strong>Price:</strong> ${formatPrice(itemPrice)}</p>
-;
+`;
+
 
             const qtySpan = card.querySelector(".qty");
             const plusBtn = card.querySelector(".plus");

@@ -205,25 +205,44 @@
       return { entries, itemCount };
     }
 
-    function buildCartMessage() {
-      const { entries } = cartSummary();
-      const lines = [
-        "HIT SEND TO CONFIRM YOUR ORDER BELOW",
-        ""
-      ];
+   function buildCartMessage() {
+  const { entries } = cartSummary();
+  const lines = [
+    "HIT SEND TO CONFIRM YOUR ORDER BELOW",
+    ""
+  ];
 
-      entries.forEach(e => {
-        const priceTxt = formatPrice(e.price);
-        const name = e.item || "";
-        const size = e.size ? ` (${e.size})` : "";
-        lines.push(`${e.qty} x ${name}${size} - ${priceTxt}`);
-      });
+  let subtotal = 0;
 
-      lines.push("");
-      lines.push("Thank you!");
+  entries.forEach(e => {
+    const price = parseFloat(e.price) || 0;
+    subtotal += price * e.qty;
 
-      return encodeURIComponent(lines.join("\n"));
-    }
+    const priceTxt = formatPrice(price);
+    const name = e.item || "";
+    const size = e.size ? ` (${e.size})` : "";
+    lines.push(`${e.qty} x ${name}${size} - ${priceTxt}`);
+  });
+
+  lines.push("");
+
+  // --- Calculate Fees & Taxes ---
+  let deliveryFee = subtotal < 100 ? 10 : 0;
+  const taxRate = 0.088975;
+  const taxAmount = (subtotal + deliveryFee) * taxRate;
+  const total = subtotal + deliveryFee + taxAmount;
+
+  // --- Summary Section ---
+  lines.push(`Subtotal: ${formatPrice(subtotal)}`);
+  if (deliveryFee > 0) lines.push(`Delivery Fee: ${formatPrice(deliveryFee)}`);
+  lines.push(`NYC Sales Tax (8.8975%): ${formatPrice(taxAmount)}`);
+  lines.push(`Total: ${formatPrice(total)}`);
+
+  lines.push("");
+  lines.push("Thank you!");
+
+  return encodeURIComponent(lines.join("\n"));
+}
 
     function updateSticky(stickyBtn, stickySubtext) {
       const { entries, itemCount } = cartSummary();

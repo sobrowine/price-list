@@ -140,7 +140,57 @@
     box-sizing: border-box;
   }
 }
-  
+  /* ===== Modal Styles ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.modal-content h2 {
+  margin-top: 0;
+}
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0 15px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.cancel-btn, .confirm-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+}
+.cancel-btn {
+  background: #ccc;
+  color: #333;
+}
+.confirm-btn {
+  background: #25D366;
+  color: white;
+}
   </style>
 </head>
 
@@ -291,12 +341,58 @@ function buildCartMessage() {
         updateSticky(stickyBtn, stickySubtext);
 
         // Prevent empty-cart click
-        stickyBtn.addEventListener("click", (e) => {
-          if (!stickyBtn.href || stickyBtn.href.endsWith("#")) {
-            e.preventDefault();
-            alert("Select item quantities first.");
-          }
-        });
+        // === Modal logic ===
+const modal = document.getElementById("orderModal");
+const confirmOrderBtn = document.getElementById("confirmOrderBtn");
+const cancelOrderBtn = document.getElementById("cancelOrderBtn");
+const clientNameInput = document.getElementById("clientName");
+const clientPhoneInput = document.getElementById("clientPhone");
+
+// Show modal when "Order via WhatsApp" clicked
+stickyBtn.addEventListener("click", (e) => {
+  const { entries } = cartSummary();
+  if (!entries.length) {
+    e.preventDefault();
+    alert("Select item quantities first.");
+    return;
+  }
+  e.preventDefault();
+  modal.style.display = "flex";
+
+  // prefill from localStorage if saved before
+  clientNameInput.value = localStorage.getItem("clientName") || "";
+  clientPhoneInput.value = localStorage.getItem("clientPhone") || "";
+});
+
+// Cancel close
+cancelOrderBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+// Confirm send
+confirmOrderBtn.addEventListener("click", () => {
+  const clientName = clientNameInput.value.trim();
+  const clientPhone = clientPhoneInput.value.trim();
+
+  if (!clientName || !clientPhone) {
+    alert("Please enter both name and phone number.");
+    return;
+  }
+
+  // save for next time
+  localStorage.setItem("clientName", clientName);
+  localStorage.setItem("clientPhone", clientPhone);
+
+  const summary = buildCartMessage();
+  const msgWithInfo = encodeURIComponent(
+    `Name: ${clientName}\nPhone: ${clientPhone}\n\n` +
+    decodeURIComponent(summary.message)
+  );
+
+  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${msgWithInfo}`;
+  window.open(waUrl, "_blank");
+  modal.style.display = "none";
+});
 
         // Build headers once (table view)
         thead.innerHTML = "";
@@ -424,5 +520,23 @@ function buildCartMessage() {
       }
     });
   </script>
+  <!-- Order Details Modal -->
+<div id="orderModal" class="modal-overlay" style="display:none;">
+  <div class="modal-content">
+    <h2>Enter Your Details</h2>
+    <p>Please provide your full name and phone number to complete your order.</p>
+
+    <label for="clientName"><strong>Full Name:</strong></label>
+    <input type="text" id="clientName" placeholder="John Doe" required>
+
+    <label for="clientPhone"><strong>Phone Number:</strong></label>
+    <input type="tel" id="clientPhone" placeholder="(555) 123‑4567" required>
+
+    <div class="modal-actions">
+      <button id="cancelOrderBtn" class="cancel-btn">Cancel</button>
+      <button id="confirmOrderBtn" class="confirm-btn">Send Order</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

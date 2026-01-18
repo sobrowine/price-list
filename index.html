@@ -205,15 +205,57 @@
       return { entries, itemCount };
     }
 
-   function buildCartMessage() {
+   // 1️⃣ Prompt for customer's details when they click the "Order" button
+stickyBtn.addEventListener("click", (e) => {
   const { entries } = cartSummary();
-  const lines = ["HIT SEND TO CONFIRM YOUR ORDER BELOW", ""];
+
+  // Prevent empty-cart click
+  if (!entries.length) {
+    e.preventDefault();
+    alert("Select item quantities first.");
+    return;
+  }
+
+  // Ask customer for name and phone
+  const clientName = prompt("Please enter your full name:");
+  if (!clientName) {
+    e.preventDefault();
+    alert("Name is required to place the order.");
+    return;
+  }
+
+  const clientPhone = prompt("Please enter your phone number:");
+  if (!clientPhone) {
+    e.preventDefault();
+    alert("Phone number is required to place the order.");
+    return;
+  }
+
+  // Build the order message with client info
+  const summary = buildCartMessage(clientName, clientPhone);
+
+  // Automatically open WhatsApp with message filled in
+  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${summary.message}`;
+  window.open(waUrl, "_blank");
+  e.preventDefault(); // Prevent default link navigation
+});
+
+
+// 2️⃣ Updated to include client info
+function buildCartMessage(clientName = "", clientPhone = "") {
+  const { entries } = cartSummary();
+  const lines = [];
+
+  lines.push("HIT SEND TO CONFIRM YOUR ORDER BELOW");
+  lines.push("");
+  if (clientName) lines.push(`Name: ${clientName}`);
+  if (clientPhone) lines.push(`Client Phone: ${clientPhone}`);
+  lines.push("");
 
   let subtotal = 0;
   entries.forEach(e => {
     const price = parseFloat(e.price) || 0;
     subtotal += price * e.qty;
-
     const priceTxt = formatPrice(price);
     const name = e.item || "";
     const size = e.size ? ` (${e.size})` : "";
@@ -222,16 +264,15 @@
 
   lines.push("");
 
-  // --- FEES & TAXES ---
-  let deliveryFee = subtotal < 100 ? 10 : 0;
+  // --- Fees & Taxes ---
+  let deliveryFee = subtotal < 100 && subtotal > 0 ? 10 : 0;
   const taxRate = 0.088975;
   const taxAmount = (subtotal + deliveryFee) * taxRate;
   const total = subtotal + deliveryFee + taxAmount;
 
-  // --- SUMMARY ---
+  // --- Summary ---
   lines.push(`Subtotal: ${formatPrice(subtotal)}`);
-  if (deliveryFee > 0)
-    lines.push(`Delivery Fee: ${formatPrice(deliveryFee)}`);
+  if (deliveryFee > 0) lines.push(`Delivery Fee: ${formatPrice(deliveryFee)}`);
   lines.push(`NYC Sales Tax (8.8975%): ${formatPrice(taxAmount)}`);
   lines.push(`Total: ${formatPrice(total)}`);
 
@@ -245,24 +286,6 @@
     taxAmount,
     total
   };
-}
-
-function updateSticky(stickyBtn, stickySubtext) {
-  const { entries, itemCount } = cartSummary();
-
-  if (entries.length === 0) {
-    stickyBtn.href = "#";
-    stickySubtext.textContent = "Select quantities to build your order";
-    return;
-  }
-
-  const summary = buildCartMessage(); // new version returns message + totals
-  const msg = summary.message;
-
-  stickyBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
-
-  // Show total on sticky bar (rounded to 2 decimals)
-  stickySubtext.textContent = `${itemCount} item${itemCount === 1 ? "" : "s"} • Total: ${formatPrice(summary.total)}`;
 }
 
     // ===== LOAD SHEET =====
